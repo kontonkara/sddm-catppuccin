@@ -1,0 +1,11 @@
+[SddmGreeterTheme]
+Name=sddm-catppuccin
+Desription=mocha-lavender
+Website=https://github.com/kontonkara/sddm-catppuccin
+Author=kontonkara
+License=MIT
+Version=1.0
+ConfigFile=theme.conf
+MainScript=Main.qml
+Theme-Id=2.0
+QtVersion=6
