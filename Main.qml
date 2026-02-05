@@ -1,5 +1,5 @@
 import QtQuick 2.15
-import QtQuick.Controls 2.15
+import QtQuick.Controls 2.15 as Controls  // alias
 import SddmComponents 2.0
 
 Rectangle {
@@ -12,14 +12,14 @@ Rectangle {
         spacing: 20
         width: 300
 
-        TextField {
+        Controls.TextField {  // explicit
             id: user
             width: parent.width
             placeholderText: "Username"
             text: userModel.lastUser
         }
 
-        TextField {
+        Controls.TextField {  // explicit
             id: pass
             width: parent.width
             placeholderText: "Password"
@@ -32,7 +32,7 @@ Rectangle {
             }
         }
 
-        Button {
+        Controls.Button {  // explicit - uses Qt Controls, not SddmComponents
             width: parent.width
             text: "Login"
             onClicked: sddm.login(user.text, pass.text, 0)
