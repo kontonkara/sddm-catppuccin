@@ -6,31 +6,130 @@ Column {
     spacing: config.inputSpacing || 15
     width: config.inputWidth || 400
 
-    // Username field
-    Controls.TextField {
-        id: user
+    property string currentUser: userModel.lastUser
+
+    // User field - type controlled by config
+    Loader {
+        id: userLoader
         width: parent.width
         height: config.inputHeight || 50
-        placeholderText: config.userPlaceholder || "Username"
-        text: userModel.lastUser
 
-        font.family: config.font || "Inter"
-        font.pixelSize: config.fontSize || 14
+        sourceComponent: config.userFieldType === "combobox" ? userComboBox : userTextField
+    }
 
-        color: config.inputTextColor || "#cdd6f4"
-        placeholderTextColor: config.inputPlaceholderColor || "#6c7086"
+    // ComboBox variant
+    Component {
+        id: userComboBox
 
-        background: Rectangle {
-            radius: config.inputRadius || 10
-            color: config.inputBgColor || "#313244"
-            border.width: user.activeFocus ? config.inputBorderWidth || 2 : 0
-            border.color: config.inputBorderColor || "#b4befe"
+        Controls.ComboBox {
+            id: userBox
+            model: userModel
+            currentIndex: userModel.lastIndex
+            textRole: "name"
 
-            Behavior on border.width { NumberAnimation { duration: 150 } }
+            font.family: config.font || "Inter"
+            font.pixelSize: config.fontSize || 14
+
+            contentItem: Text {
+                leftPadding: 15
+                text: userBox.displayText
+                font: userBox.font
+                color: config.inputTextColor || "#cdd6f4"
+                verticalAlignment: Text.AlignVCenter
+            }
+
+            background: Rectangle {
+                radius: config.inputRadius || 10
+                color: config.inputBgColor || "#313244"
+                border.width: userBox.popup.visible ? 2 : 0
+                border.color: config.inputBorderColor || "#b4befe"
+            }
+
+            popup: Controls.Popup {
+                y: userBox.height + 5
+                width: userBox.width
+                padding: 10
+
+                contentItem: ListView {
+                    clip: true
+                    implicitHeight: contentHeight
+                    model: userModel
+                    currentIndex: userBox.currentIndex
+
+                    delegate: Controls.ItemDelegate {
+                        width: userBox.width - 20
+                        height: 40
+
+                        contentItem: Text {
+                            text: model.name
+                            font: userBox.font
+                            color: config.inputTextColor || "#cdd6f4"
+                            verticalAlignment: Text.AlignVCenter
+                        }
+
+                        background: Rectangle {
+                            radius: 5
+                            color: index === userBox.currentIndex ?
+                                   config.inputSelectedColor || "#585b70" :
+                                   parent.hovered ? config.inputHoverColor || "#45475a" :
+                                   "transparent"
+                        }
+
+                        onClicked: {
+                            userBox.currentIndex = index
+                            userBox.popup.close()
+                        }
+                    }
+                }
+
+                background: Rectangle {
+                    radius: config.inputRadius || 10
+                    color: config.inputBgColor || "#313244"
+                    border.width: 2
+                    border.color: config.inputBorderColor || "#b4befe"
+                }
+            }
+
+            onCurrentTextChanged: {
+                currentUser = currentText
+                pass.forceActiveFocus()
+            }
+
+            Component.onCompleted: {
+                currentUser = displayText
+            }
         }
+    }
 
-        leftPadding: 15
-        rightPadding: 15
+    // TextField variant
+    Component {
+        id: userTextField
+
+        Controls.TextField {
+            id: singleUserField
+            text: userModel.lastUser
+            readOnly: config.allowEditUsername !== "true"
+
+            font.family: config.font || "Inter"
+            font.pixelSize: config.fontSize || 14
+            color: config.inputTextColor || "#cdd6f4"
+
+            background: Rectangle {
+                radius: config.inputRadius || 10
+                color: config.inputBgColor || "#313244"
+                border.width: singleUserField.activeFocus ? 2 : 0
+                border.color: config.inputBorderColor || "#b4befe"
+            }
+
+            leftPadding: 15
+            rightPadding: 15
+
+            onTextChanged: currentUser = text
+
+            Component.onCompleted: {
+                currentUser = text
+            }
+        }
     }
 
     // Password field
@@ -40,20 +139,17 @@ Column {
         height: config.inputHeight || 50
         placeholderText: config.passwordPlaceholder || "Password"
         echoMode: TextInput.Password
+        focus: true
 
         font.family: config.font || "Inter"
         font.pixelSize: config.fontSize || 14
-
         color: config.inputTextColor || "#cdd6f4"
-        placeholderTextColor: config.inputPlaceholderColor || "#6c7086"
 
         background: Rectangle {
             radius: config.inputRadius || 10
             color: config.inputBgColor || "#313244"
-            border.width: pass.activeFocus ? config.inputBorderWidth || 2 : 0
+            border.width: pass.activeFocus ? 2 : 0
             border.color: config.inputBorderColor || "#b4befe"
-
-            Behavior on border.width { NumberAnimation { duration: 150 } }
         }
 
         leftPadding: 15
@@ -61,13 +157,14 @@ Column {
 
         Keys.onPressed: (event) => {
             if (event.key === Qt.Key_Return) {
-                sddm.login(user.text, pass.text, 0)
+                loginButton.clicked()
             }
         }
     }
 
     // Login button
     Controls.Button {
+        id: loginButton
         width: parent.width
         height: config.buttonHeight || 50
         text: config.loginButtonText || "Login"
@@ -87,10 +184,10 @@ Column {
             color: parent.down ? config.buttonPressedColor || "#a6adc8" :
                    parent.hovered ? config.buttonHoverColor || "#cba6f7" :
                    config.buttonBgColor || "#b4befe"
-
-            Behavior on color { ColorAnimation { duration: 150 } }
         }
 
-        onClicked: sddm.login(user.text, pass.text, 0)
+        onClicked: {
+            sddm.login(currentUser, pass.text, sessionSelector.currentIndex)
+        }
     }
 }

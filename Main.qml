@@ -13,8 +13,33 @@ Rectangle {
         id: bg
     }
 
+    // Clock - top center
+    Clock {
+        id: clock
+        anchors.top: parent.top
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.topMargin: config.clockTopMargin || 50
+    }
+
+    // Login form - center
     LoginForm {
         id: form
         anchors.centerIn: parent
+    }
+
+    // Session selector - below login button with bigger margin
+    SessionSelector {
+        id: sessionSelector
+        anchors.top: form.bottom
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.topMargin: config.sessionTopMargin || 40
+    }
+
+    // Power buttons - bottom center
+    PowerButtons {
+        id: powerButtons
+        anchors.bottom: parent.bottom
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottomMargin: config.powerBottomMargin || 50
     }
 }

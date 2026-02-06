@@ -5,21 +5,20 @@ Item {
     id: background
     anchors.fill: parent
 
-    // Solid color
     Rectangle {
         anchors.fill: parent
         color: config.backgroundColor || "#1e1e2e"
         visible: config.backgroundType === "color"
     }
 
-    // Static image
     Image {
         id: staticImage
         anchors.fill: parent
         source: config.backgroundType === "image" ? Qt.resolvedUrl("../" + config.backgroundPath) : ""
         fillMode: Image.PreserveAspectCrop
-        asynchronous: true
+        asynchronous: true  // async load
         cache: true
+        smooth: false  // disable antialiasing for performance
         visible: config.backgroundType === "image"
 
         onStatusChanged: {
@@ -29,13 +28,13 @@ Item {
         }
     }
 
-    // Animated GIF
     AnimatedImage {
         id: gifImage
         anchors.fill: parent
         source: config.backgroundType === "gif" ? Qt.resolvedUrl("../" + config.backgroundPath) : ""
         fillMode: Image.PreserveAspectCrop
         asynchronous: true
+        playing: visible  // only play when visible
         visible: config.backgroundType === "gif"
 
         onStatusChanged: {
@@ -45,7 +44,6 @@ Item {
         }
     }
 
-    // Video background
     Item {
         anchors.fill: parent
         visible: config.backgroundType === "video"
@@ -69,7 +67,6 @@ Item {
         }
     }
 
-    // Dim overlay
     Rectangle {
         anchors.fill: parent
         color: config.dimColor || "#000000"
