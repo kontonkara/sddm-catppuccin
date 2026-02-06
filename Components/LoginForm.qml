@@ -8,13 +8,26 @@ Column {
 
     property string currentUser: userModel.lastUser
 
-    // User field - type controlled by config
-    Loader {
-        id: userLoader
+    // Username section
+    Column {
         width: parent.width
-        height: config.inputHeight || 50
+        spacing: 8
 
-        sourceComponent: config.userFieldType === "combobox" ? userComboBox : userTextField
+        // Label above field
+        Text {
+            text: config.userLabel || "Username"
+            font.family: config.font || "Inter"
+            font.pixelSize: config.labelSize || 12
+            color: config.labelColor || "#a6adc8"
+        }
+
+        // User field
+        Loader {
+            id: userLoader
+            width: parent.width
+            height: config.inputHeight || 50
+            sourceComponent: config.userFieldType === "combobox" ? userComboBox : userTextField
+        }
     }
 
     // ComboBox variant
@@ -109,6 +122,7 @@ Column {
             id: singleUserField
             text: userModel.lastUser
             readOnly: config.allowEditUsername !== "true"
+            activeFocusOnTab: config.allowEditUsername === "true"
 
             font.family: config.font || "Inter"
             font.pixelSize: config.fontSize || 14
@@ -117,7 +131,8 @@ Column {
             background: Rectangle {
                 radius: config.inputRadius || 10
                 color: config.inputBgColor || "#313244"
-                border.width: singleUserField.activeFocus ? 2 : 0
+                // Border only if NOT readonly AND focused
+                border.width: (config.allowEditUsername === "true" && singleUserField.activeFocus) ? 2 : 0
                 border.color: config.inputBorderColor || "#b4befe"
             }
 
@@ -132,32 +147,45 @@ Column {
         }
     }
 
-    // Password field
-    Controls.TextField {
-        id: pass
+    // Password section
+    Column {
         width: parent.width
-        height: config.inputHeight || 50
-        placeholderText: config.passwordPlaceholder || "Password"
-        echoMode: TextInput.Password
-        focus: true
+        spacing: 8
 
-        font.family: config.font || "Inter"
-        font.pixelSize: config.fontSize || 14
-        color: config.inputTextColor || "#cdd6f4"
-
-        background: Rectangle {
-            radius: config.inputRadius || 10
-            color: config.inputBgColor || "#313244"
-            border.width: pass.activeFocus ? 2 : 0
-            border.color: config.inputBorderColor || "#b4befe"
+        // Label above field
+        Text {
+            text: config.passwordLabel || "Password"
+            font.family: config.font || "Inter"
+            font.pixelSize: config.labelSize || 12
+            color: config.labelColor || "#a6adc8"
         }
 
-        leftPadding: 15
-        rightPadding: 15
+        // Password field
+        Controls.TextField {
+            id: pass
+            width: parent.width
+            height: config.inputHeight || 50
+            echoMode: TextInput.Password
+            focus: true
 
-        Keys.onPressed: (event) => {
-            if (event.key === Qt.Key_Return) {
-                loginButton.clicked()
+            font.family: config.font || "Inter"
+            font.pixelSize: config.fontSize || 14
+            color: config.inputTextColor || "#cdd6f4"
+
+            background: Rectangle {
+                radius: config.inputRadius || 10
+                color: config.inputBgColor || "#313244"
+                border.width: pass.activeFocus ? 2 : 0
+                border.color: config.inputBorderColor || "#b4befe"
+            }
+
+            leftPadding: 15
+            rightPadding: 15
+
+            Keys.onPressed: (event) => {
+                if (event.key === Qt.Key_Return) {
+                    loginButton.clicked()
+                }
             }
         }
     }
